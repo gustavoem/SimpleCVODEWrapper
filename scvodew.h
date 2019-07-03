@@ -14,7 +14,8 @@
 typedef struct cvode_solver {
     void *cvode_mem;
     SUNLinearSolver LS;
-    SUNLinearMatrix J; 
+    SUNMatrix J;
+    N_Vector y0;
 } SimpleCVODESolver;
 
 /* 
@@ -93,5 +94,11 @@ Arguments
     
 */
 float ** integrate(SimpleCVODESolver *solver, float *t);
+
+
+/*
+Frees the memory used by a SimpleCVODESolver object.
+*/
+void delete_solver(SimpleCVODESolver *solver);
 
 #endif
