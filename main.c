@@ -42,9 +42,11 @@ int main()
         /*printf("exp(%.3f) = %.3f\n\n", t[i], exp (t[i]));*/
     }
 
-    /*delete_solver(solver);*/
+    delete_solver(solver);
     for (i = 0; i < 10; i++)
         free(result[i]);
     free(result);
+    free(t);
+    free(y0);
     return 0;
 }

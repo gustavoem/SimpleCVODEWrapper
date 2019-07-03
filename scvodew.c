@@ -28,6 +28,7 @@ SimpleCVODESolver *new_cvode_solver(int lmm)
 
     SimpleCVODESolver * solver = malloc (sizeof (SimpleCVODESolver));
     solver->cvode_mem = cvode_mem;
+    printf("cvode_mem = %p\n", solver->cvode_mem);
     solver->LS = NULL;
     solver->J = NULL;
     return solver;
@@ -135,10 +136,12 @@ float **integrate(SimpleCVODESolver *solver, float *t, int m)
 
 void delete_solver(SimpleCVODESolver *solver) 
 {
-    CVodeFree(solver->cvode_mem);
+    printf("cvode_mem = %p\n", solver->cvode_mem);
+    CVodeFree(&(solver->cvode_mem));
     SUNLinSolFree(solver->LS);
     SUNMatDestroy(solver->J);
     N_VDestroy_Serial(solver->y0);
+    free(solver);
 }
 
 
