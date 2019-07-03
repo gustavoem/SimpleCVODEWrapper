@@ -7,7 +7,6 @@
 #include <stdlib.h>
 
 
-
 /*
 Check function return value...
     opt == 0 means SUNDIALS function allocates memory so check if
@@ -70,21 +69,21 @@ int prepare_solver(SimpleCVODESolver *solver)
     void *cvode_mem = solver->cvode_mem;
     int flag, n;
     N_Vector y0 = solver->y0;
-    n = NV_LENGTH_S (y0);
+    n = NV_LENGTH_S(y0);
 
     // Create matrix object
     J = SUNDenseMatrix(n, n);
-    if (check_retval (J, "SUNDenseMatrix", 0))
+    if (check_retval(J, "SUNDenseMatrix", 0))
         return -1;
         
     // Create linear solver object
     LS = SUNLinSol_Dense(y0, J);
-    if (check_retval (LS, "SUNLinSol_Dense", 0))
+    if (check_retval(LS, "SUNLinSol_Dense", 0))
         return -1;
 
     // Attach linear solver module
     flag = CVodeSetLinearSolver(cvode_mem, LS, J);
-    if (check_retval (&flag, "CVodeSetLinearSolver", 1))
+    if (check_retval(&flag, "CVodeSetLinearSolver", 1))
         return -1;
     solver->J = J;
     solver->LS = LS;
@@ -102,11 +101,44 @@ int set_system_data(SimpleCVODESolver *solver, void *data)
 }
 
 
+float **integrate(SimpleCVODESolver *solver, float *t, int m)
+{
+    realtype tout, treach;
+    int itask = CV_NORMAL;
+    int i, j, n;
+    int flag;
+    N_Vector yout, y0;
+    void *cvode_mem;
+    float **result;
+
+    cvode_mem = solver->cvode_mem;
+    y0 = solver->y0;
+    n = NV_LENGTH_S(y0);
+    yout = N_VNew_Serial(m);
+    result = malloc(m * sizeof (float *));
+    for (i = 0; i < m; i++)
+        result[i] = malloc(n * sizeof (float));
+
+    for (i = 0; i < m; i++)
+    {
+        tout = t[i];
+        flag = CVode(cvode_mem, tout, yout, &treach, itask);
+        for (j = 0; j < n; j++) {
+            result[i][j] = NV_Ith_S(yout, j);
+        }
+    }
+
+    N_VDestroy_Serial(yout);
+    return result;
+}
+
+
 void delete_solver(SimpleCVODESolver *solver) 
 {
     CVodeFree(solver->cvode_mem);
     SUNLinSolFree(solver->LS);
     SUNMatDestroy(solver->J);
+    N_VDestroy_Serial(solver->y0);
 }
 
 

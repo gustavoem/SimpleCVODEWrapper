@@ -93,7 +93,7 @@ Integrates the system.
 Arguments
     
 */
-float ** integrate(SimpleCVODESolver *solver, float *t);
+float ** integrate(SimpleCVODESolver *solver, float *t, int m);
 
 
 /*
