@@ -37,7 +37,7 @@ SimpleCVODESolver *new_cvode_solver(int lmm);
 of the system of ODEs.
 
 Arguments
-    cvode_mem: a pointer to the cvode object;
+    solver: a pointer to the solver object;
     f: a function that defines the system of ODEs. This function must 
         have the signature f(realtype t, N_Vector y, N_Vector ydot, 
         void *f_data);
@@ -55,7 +55,7 @@ int init_solver(SimpleCVODESolver *solver, void *f, float t0, float *y0,
 This function sets the tolerances for the integrator. 
 
 Arguments
-    cvode_mem: a pointer to the cvode object;
+    solver: a pointer to the solver object;
     abstol: absolute error tolerance;
     reltol: relative error tolerance.
 
@@ -68,7 +68,7 @@ int set_tolerance(SimpleCVODESolver *solver, float abstol,
 /*
 Prepares the solver for integration.
 Arguments
-    cvode_mem: a pointer to the cvode object.
+    solver: a pointer to the solver object.
 
 Returns 0 if success.
 */
@@ -80,9 +80,10 @@ This function allows the user to define data that will be passed to f,
 during integration.
 
 Arguments
+    solver: a pointer to the solver object;
     data: a pointer to the data.
 
-Returns 1 if success.
+Returns 0 if success.
 */
 int set_system_data(SimpleCVODESolver *solver, void *data);
 
@@ -91,9 +92,31 @@ int set_system_data(SimpleCVODESolver *solver, void *data);
 Integrates the system.
 
 Arguments
-    
+    solver: the solver being used;
+    t: a list with times for which integration values should be stored;
+    m: the size of the t.
+
+Returns a matrix containing the integrated values of the function on the
+specified times. This matrix has size mxn, where m is the number of
+times specified, and n is the number of components of the integrated 
+function.
 */
 float ** integrate(SimpleCVODESolver *solver, float *t, int m);
+
+
+/*
+Resets the integrator.
+
+Arguments
+    solver: the solver that needs to be restarted;
+    t0: the starting point to which the integrator should be reset;
+    y0: the initial conditions to which the system should be reset.
+
+Returns 0 if success.
+
+Note: y0 should be of same dimension as set before, in init_solver().
+*/
+int reset_solver(SimpleCVODESolver *solver, float t0, float *y0);
 
 
 /*

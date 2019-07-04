@@ -123,13 +123,37 @@ float **integrate(SimpleCVODESolver *solver, float *t, int m)
     {
         tout = t[i];
         flag = CVode(cvode_mem, tout, yout, &treach, itask);
-        for (j = 0; j < n; j++) {
-            result[i][j] = NV_Ith_S(yout, j);
+        if (check_retval(&flag, "CVode", 1)) 
+        {
+            for (j = 0; j < m; j++)
+                free(result[j]);
+            free(result);
+            N_VDestroy_Serial(yout);
+            return NULL;
         }
+
+        for (j = 0; j < n; j++)
+            result[i][j] = NV_Ith_S(yout, j);
     }
 
     N_VDestroy_Serial(yout);
     return result;
+}
+
+
+int reset_solver(SimpleCVODESolver *solver, float t0, float *y0)
+{
+    N_Vector solver_y0 = solver->y0;
+    realtype real_t0 = t0;
+    int flag, i;
+    int n = NV_LENGTH_S(solver_y0);
+    for (i = 0; i < n; i++) 
+        NV_Ith_S(solver_y0, i) = y0[i];
+
+    flag = CVodeReInit(solver->cvode_mem, t0, solver_y0);
+    if (check_retval(&flag, "CVodeReInit", 1))
+        return -1;
+    return 0;
 }
 
 
