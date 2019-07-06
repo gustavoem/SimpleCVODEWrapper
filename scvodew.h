@@ -66,6 +66,11 @@ int set_tolerance(SimpleCVODESolver *solver, float abstol,
 
 
 /*
+This function sets the max number of steps in an integration call.
+*/
+int set_max_step(SimpleCVODESolver *solver, int mxsteps);
+
+/*
 Prepares the solver for integration.
 Arguments
     solver: a pointer to the solver object.

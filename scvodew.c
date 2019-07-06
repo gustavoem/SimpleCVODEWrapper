@@ -62,6 +62,16 @@ int set_tolerance(SimpleCVODESolver *solver, float abstol, float reltol)
 }
 
 
+int set_max_step(SimpleCVODESolver *solver, int mxsteps)
+{
+    void *cvode_mem = solver->cvode_mem;
+    int flag = CVodeSetMaxNumSteps(cvode_mem, mxsteps);
+    if (check_retval(&flag, "CVodeSetMaxNumSteps", 1))
+        return -1;
+    return 0;
+}
+
+
 int prepare_solver(SimpleCVODESolver *solver)
 {
     SUNMatrix J;
@@ -70,7 +80,7 @@ int prepare_solver(SimpleCVODESolver *solver)
     int flag, n;
     N_Vector y0 = solver->y0;
     n = NV_LENGTH_S(y0);
-
+    
     // Create matrix object
     J = SUNDenseMatrix(n, n);
     if (check_retval(J, "SUNDenseMatrix", 0))
@@ -86,7 +96,7 @@ int prepare_solver(SimpleCVODESolver *solver)
     if (check_retval(&flag, "CVodeSetLinearSolver", 1))
         return -1;
     solver->J = J;
-    solver->LS = LS;
+    solver->LS = LS;    
     return 0;
 }
 
