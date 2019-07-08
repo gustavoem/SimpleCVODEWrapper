@@ -47,8 +47,8 @@ Arguments
 
 Returns 0 if success.
 */
-int init_solver(SimpleCVODESolver *solver, void *f, float t0, float *y0, 
-        int n);
+int init_solver(SimpleCVODESolver *solver, int (*f)(realtype, 
+            N_Vector, N_Vector, void *), float t0, float *y0, int n);
 
 
 /* 

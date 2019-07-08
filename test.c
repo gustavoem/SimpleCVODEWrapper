@@ -14,14 +14,17 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
 int main()
 {
-    SimpleCVODESolver *solver = new_cvode_solver(STIFF_INTEGRATOR);
+    SimpleCVODESolver *solver;
     float t0 = 0;
     float *y0, *args;
     float *t = malloc(10 * sizeof (float));
     float **result;
     int i;
     int passed = 1;
+    int (*f_pointer)(realtype, N_Vector, N_Vector, void *);
     
+    solver = new_cvode_solver(STIFF_INTEGRATOR);
+    f_pointer = &f;
     for (i = 0; i < 10; i++)
         t[i] = (i + 1) / 10.0;
     y0 = malloc(2 * sizeof (float));
@@ -30,8 +33,8 @@ int main()
     args = malloc(2 * sizeof (float));
     args[0] = 1;
     args[1] = 2;
-
-    init_solver(solver, f, t0, y0, 2);
+    
+    init_solver(solver, f_pointer, t0, y0, 2);
     set_tolerance(solver, 1e-8, 1e-8);
     prepare_solver(solver);
     set_system_data(solver, args);

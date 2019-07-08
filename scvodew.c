@@ -23,10 +23,11 @@ static int check_retval(void *returnvalue, const char *funcname,
 SimpleCVODESolver *new_cvode_solver(int lmm) 
 {
     void *cvode_mem = CVodeCreate(lmm);
+    SimpleCVODESolver * solver;
     if (check_retval (cvode_mem, "CVodeCreate", 0))
         return NULL;
 
-    SimpleCVODESolver * solver = malloc (sizeof (SimpleCVODESolver));
+    solver = malloc (sizeof (SimpleCVODESolver));
     solver->cvode_mem = cvode_mem;
     solver->LS = NULL;
     solver->J = NULL;
@@ -34,8 +35,8 @@ SimpleCVODESolver *new_cvode_solver(int lmm)
 }
 
 
-int init_solver(SimpleCVODESolver *solver, void *f, float t0, float *y0, 
-        int n)
+int init_solver(SimpleCVODESolver *solver, int (*f)(realtype, 
+            N_Vector, N_Vector, void *), float t0, float *y0, int n)
 {
     int i, flag;
     void *cvode_mem = solver->cvode_mem;
@@ -45,7 +46,7 @@ int init_solver(SimpleCVODESolver *solver, void *f, float t0, float *y0,
         NV_Ith_S(vec_y0, i) = y0[i];
 
     flag = CVodeInit(cvode_mem, f, real_t0, vec_y0);
-    if (check_retval(cvode_mem, "CVodeInit", 1))
+    if (check_retval(&flag, "CVodeInit", 1))
         return -1;
     solver->y0 = vec_y0;
     return 0;
@@ -81,17 +82,17 @@ int prepare_solver(SimpleCVODESolver *solver)
     N_Vector y0 = solver->y0;
     n = NV_LENGTH_S(y0);
     
-    // Create matrix object
+    /* Create matrix object */
     J = SUNDenseMatrix(n, n);
     if (check_retval(J, "SUNDenseMatrix", 0))
         return -1;
         
-    // Create linear solver object
+    /* Create linear solver object */
     LS = SUNLinSol_Dense(y0, J);
     if (check_retval(LS, "SUNLinSol_Dense", 0))
         return -1;
 
-    // Attach linear solver module
+    /* Attach linear solver module */
     flag = CVodeSetLinearSolver(cvode_mem, LS, J);
     if (check_retval(&flag, "CVodeSetLinearSolver", 1))
         return -1;
@@ -160,7 +161,7 @@ int reset_solver(SimpleCVODESolver *solver, float t0, float *y0)
     for (i = 0; i < n; i++) 
         NV_Ith_S(solver_y0, i) = y0[i];
 
-    flag = CVodeReInit(solver->cvode_mem, t0, solver_y0);
+    flag = CVodeReInit(solver->cvode_mem, real_t0, solver_y0);
     if (check_retval(&flag, "CVodeReInit", 1))
         return -1;
     return 0;
