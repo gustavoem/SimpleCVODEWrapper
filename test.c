@@ -51,6 +51,10 @@ int main()
         if (abs(result[i][1] - exp(t[i] * 2)) > 1e-8)
             passed = 0;
     }
+    for (i = 0; i < 10; i++)
+        free(result[i]);
+    free(result);
+
 
     if (!passed)
     {
