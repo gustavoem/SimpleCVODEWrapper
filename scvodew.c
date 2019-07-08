@@ -125,9 +125,9 @@ float **integrate(SimpleCVODESolver *solver, float *t, int m)
     cvode_mem = solver->cvode_mem;
     y0 = solver->y0;
     n = NV_LENGTH_S(y0);
-    yout = N_VNew_Serial(m);
+    yout = N_VNew_Serial(n);
     result = malloc(m * sizeof (float *));
-    for (i = 0; i < m; i++)
+    for (i = 0; i < m; i++) 
         result[i] = malloc(n * sizeof (float));
 
     for (i = 0; i < m; i++)
